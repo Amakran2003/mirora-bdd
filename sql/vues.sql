@@ -84,3 +84,102 @@ INNER JOIN utilisateur u
 INNER JOIN categorie c
     ON v.id_categorie = c.id_categorie;
 
+
+-- VUE 4 : STATISTIQUES PAR CATEGORIE
+-- Utilisation de GROUP BY et de fonctions d'agregation
+-- COUNT : nombre de vêtements et d'annonces
+-- SUM   : valeur totale des annonces actives
+-- AVG   : prix moyen des annonces actives
+
+CREATE OR REPLACE VIEW vue_stats_categories AS
+SELECT
+    c.id_categorie,
+    c.nom AS categorie,
+
+    COUNT(DISTINCT v.id_vetement) AS nombre_vetements,
+
+    COUNT(DISTINCT a.id_annonce) AS nombre_annonces_actives,
+
+    SUM(a.prix) AS valeur_totale_annonces,
+
+    AVG(a.prix) AS prix_moyen
+
+FROM categorie c
+
+LEFT JOIN vetement v
+    ON c.id_categorie = v.id_categorie
+
+LEFT JOIN annonce a
+    ON v.id_vetement = a.id_vetement
+    AND a.statut = 'active'
+
+GROUP BY
+    c.id_categorie,
+    c.nom;
+
+
+-- VUE 5 : STATISTIQUES DES TENUES PAR STYLE
+-- Affiche le nombre de tenues et de pièces par style Utilisation de GROUP BY, COUNT et SUM
+
+CREATE OR REPLACE VIEW vue_stats_tenues AS
+SELECT
+    s.id_style,
+    s.nom AS style,
+
+    COUNT(DISTINCT t.id_tenue) AS nombre_tenues,
+
+    COUNT(tp.id_tenue_piece) AS nombre_pieces,
+
+    SUM(
+        CASE
+            WHEN tp.id_vetement IS NOT NULL THEN 1
+            ELSE 0
+        END
+    ) AS pieces_possedees,
+
+    SUM(
+        CASE
+            WHEN tp.id_annonce IS NOT NULL THEN 1
+            ELSE 0
+        END
+    ) AS pieces_a_acheter
+
+FROM style s
+
+LEFT JOIN tenue t
+    ON s.id_style = t.id_style
+
+LEFT JOIN tenue_piece tp
+    ON t.id_tenue = tp.id_tenue
+
+GROUP BY
+    s.id_style,
+    s.nom;
+
+
+-- VUE 6 : STATISTIQUES DES DRESSINGS PAR UTILISATEUR
+-- Affiche le nombre de vêtements et de catégories
+-- Utilisation de GROUP BY et de COUNT
+
+CREATE OR REPLACE VIEW vue_stats_utilisateurs AS
+SELECT
+    u.id_utilisateur,
+    u.prenom,
+    u.nom,
+
+    COUNT(v.id_vetement) AS nombre_vetements,
+
+    COUNT(DISTINCT c.id_categorie) AS nombre_categories
+
+FROM utilisateur u
+
+LEFT JOIN vetement v
+    ON u.id_utilisateur = v.id_utilisateur
+
+LEFT JOIN categorie c
+    ON v.id_categorie = c.id_categorie
+
+GROUP BY
+    u.id_utilisateur,
+    u.prenom,
+    u.nom;
