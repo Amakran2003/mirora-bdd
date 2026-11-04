@@ -131,7 +131,7 @@ mirora-bdd/
 
 1. Cloner le dépôt
    ```sh
-   git clone <url-du-depot>
+   git clone https://github.com/Amakran2003/mirora-bdd.git
    cd mirora-bdd
    ```
 2. Exécuter les scripts **dans l'ordre**
