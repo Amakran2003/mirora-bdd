@@ -51,3 +51,27 @@ BEGIN
     END IF;
 END//
 DELIMITER ;
+
+-- =====================================================================
+-- Règle : on ne peut pas acheter sa propre annonce
+-- =====================================================================
+DROP TRIGGER IF EXISTS trg_transaction_acheteur;
+
+DELIMITER //
+CREATE TRIGGER trg_transaction_acheteur
+BEFORE INSERT ON transaction
+FOR EACH ROW
+BEGIN
+    DECLARE v_vendeur INT;
+
+    SELECT v.id_utilisateur INTO v_vendeur
+    FROM annonce a
+    JOIN vetement v ON v.id_vetement = a.id_vetement
+    WHERE a.id_annonce = NEW.id_annonce;
+
+    IF v_vendeur = NEW.id_acheteur THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Un utilisateur ne peut pas acheter sa propre annonce';
+    END IF;
+END//
+DELIMITER ;

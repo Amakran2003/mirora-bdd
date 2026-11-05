@@ -57,7 +57,7 @@ INSERT INTO style (nom) VALUES
 ('Streetwear');  -- 4
 
 -- ---------------------------------------------------------------------
--- vetement (21)
+-- vetement (22)
 -- (id_utilisateur, id_categorie, id_couleur, id_style, nom, marque, taille, photo_url)
 -- ---------------------------------------------------------------------
 INSERT INTO vetement (id_utilisateur, id_categorie, id_couleur, id_style, nom, marque, taille, photo_url) VALUES
@@ -86,10 +86,12 @@ INSERT INTO vetement (id_utilisateur, id_categorie, id_couleur, id_style, nom, m
 (5, 1, 1, 4, 'T-shirt noir',                'Carhartt',  'L',     'photos/hugo_tshirt_noir.jpg'),      -- 18
 (5, 2, 5, 4, 'Pantalon cargo vert',         'Dickies',   'L',     'photos/hugo_cargo_vert.jpg'),       -- 19
 (5, 4, 3, 1, 'Veste en jean bleue',         'Levi''s',   'L',     'photos/hugo_veste_jean.jpg'),       -- 20
-(5, 6, 8, 2, 'Ceinture marron',             'Zara',      'Unique','photos/hugo_ceinture_marron.jpg');  -- 21
+(5, 6, 8, 2, 'Ceinture marron',             'Zara',      'Unique','photos/hugo_ceinture_marron.jpg'),  -- 21
+-- Camille (3), pièce en plus
+(3, 6, 1, 2, 'Sac à main noir',            'Mango',     'Unique','photos/camille_sac_noir.jpg');      -- 22
 
 -- ---------------------------------------------------------------------
--- annonce (7) : 5 actives, 1 retirée, 1 vendue
+-- annonce (8) : 5 actives, 2 vendues, 1 retirée
 -- (id_vetement, prix, etat, statut)
 -- ---------------------------------------------------------------------
 INSERT INTO annonce (id_vetement, prix, etat, statut) VALUES
@@ -98,8 +100,9 @@ INSERT INTO annonce (id_vetement, prix, etat, statut) VALUES
 (13, 80.00, 'tres_bon', 'active'),   -- 3 : trench beige de Camille
 (15, 22.00, 'bon',      'active'),   -- 4 : jean noir de Sofia
 (19, 35.00, 'bon',      'active'),   -- 5 : cargo vert de Hugo
-(7,  20.00, 'bon',      'retiree'),  -- 6 : jogging gris de Yanis
-(5,   8.00, 'neuf',     'vendue');   -- 7 : chaussettes grises de Léa
+(7,  20.00, 'bon',      'vendue'),   -- 6 : jogging gris de Yanis
+(5,   8.00, 'neuf',     'vendue'),   -- 7 : chaussettes grises de Léa
+(22, 30.00, 'bon',      'retiree');  -- 8 : sac à main noir de Camille
 
 -- ---------------------------------------------------------------------
 -- tenue (6)
@@ -146,6 +149,53 @@ INSERT INTO tenue_piece (id_tenue, id_vetement, id_annonce) VALUES
 (6, 21,   NULL),
 (6, NULL, 4);
 
+-- =====================================================================
+-- Tables complémentaires
+-- =====================================================================
+
+-- ---------------------------------------------------------------------
+-- compatibilite_couleur (10) : id_couleur_1 < id_couleur_2
+-- 1 Noir, 2 Blanc, 3 Bleu, 4 Rouge, 5 Vert, 6 Beige, 7 Gris, 8 Marron
+-- ---------------------------------------------------------------------
+INSERT INTO compatibilite_couleur (id_couleur_1, id_couleur_2) VALUES
+(1, 2),  -- Noir - Blanc
+(1, 4),  -- Noir - Rouge
+(1, 7),  -- Noir - Gris
+(2, 3),  -- Blanc - Bleu
+(2, 8),  -- Blanc - Marron
+(3, 6),  -- Bleu - Beige
+(3, 7),  -- Bleu - Gris
+(5, 6),  -- Vert - Beige
+(6, 8),  -- Beige - Marron
+(4, 7);  -- Rouge - Gris
+
+-- ---------------------------------------------------------------------
+-- transaction (2) : annonces vendues, commission de 10 %
+-- ---------------------------------------------------------------------
+INSERT INTO transaction (id_annonce, id_acheteur, montant, commission) VALUES
+(7, 4,  8.00, 0.80),   -- chaussettes de Léa achetées par Sofia
+(6, 5, 20.00, 2.00);   -- jogging de Yanis acheté par Hugo
+
+-- ---------------------------------------------------------------------
+-- photo_utilisateur (6)
+-- ---------------------------------------------------------------------
+INSERT INTO photo_utilisateur (id_utilisateur, url, angle, consentement) VALUES
+(1, 'photos_users/lea_face.jpg',     'face',   1),
+(1, 'photos_users/lea_profil.jpg',   'profil', 1),
+(2, 'photos_users/yanis_face.jpg',   'face',   1),
+(3, 'photos_users/camille_face.jpg', 'face',   1),
+(3, 'photos_users/camille_dos.jpg',  'dos',    1),
+(4, 'photos_users/sofia_face.jpg',   'face',   1);
+
+-- ---------------------------------------------------------------------
+-- essayage (4)
+-- ---------------------------------------------------------------------
+INSERT INTO essayage (id_tenue, image_generee_url) VALUES
+(1, 'essayages/tenue1_lea.png'),
+(2, 'essayages/tenue2_lea.png'),
+(4, 'essayages/tenue4_camille.png'),
+(5, 'essayages/tenue5_sofia.png');
+
 -- ---------------------------------------------------------------------
 -- Vérification rapide : nombre de lignes par table
 -- ---------------------------------------------------------------------
@@ -157,4 +207,8 @@ UNION ALL SELECT 'style',       COUNT(*) FROM style
 UNION ALL SELECT 'vetement',    COUNT(*) FROM vetement
 UNION ALL SELECT 'annonce',     COUNT(*) FROM annonce
 UNION ALL SELECT 'tenue',       COUNT(*) FROM tenue
-UNION ALL SELECT 'tenue_piece', COUNT(*) FROM tenue_piece;
+UNION ALL SELECT 'tenue_piece', COUNT(*) FROM tenue_piece
+UNION ALL SELECT 'compatibilite_couleur', COUNT(*) FROM compatibilite_couleur
+UNION ALL SELECT 'transaction', COUNT(*) FROM transaction
+UNION ALL SELECT 'photo_utilisateur', COUNT(*) FROM photo_utilisateur
+UNION ALL SELECT 'essayage', COUNT(*) FROM essayage;
