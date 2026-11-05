@@ -8,7 +8,7 @@ SELECT
     v.taille,
     v.photo_url,
     v.date_ajout,
-    
+
     c.nom AS categorie,
     co.nom AS couleur,
     co.code_hex,
@@ -279,8 +279,6 @@ INNER JOIN couleur c1
 
 INNER JOIN couleur c2
     ON cc.id_couleur_2 = c2.id_couleur;
-
-
 -- VUE 10 : STATISTIQUES DES TRANSACTIONS PAR VENDEUR
 -- Afficher le nombre de ventes, le montant total et le montant moyen
 -- Utilisation de GROUP BY et de fonctions d'agregation
