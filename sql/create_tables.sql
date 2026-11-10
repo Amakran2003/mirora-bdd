@@ -6,6 +6,10 @@
 -- =====================================================================
 
 -- Réexécutable : on supprime dans l'ordre inverse des dépendances
+DROP TABLE IF EXISTS essayage;
+DROP TABLE IF EXISTS photo_utilisateur;
+DROP TABLE IF EXISTS transaction;
+DROP TABLE IF EXISTS compatibilite_couleur;
 DROP TABLE IF EXISTS tenue_piece;
 DROP TABLE IF EXISTS tenue;
 DROP TABLE IF EXISTS annonce;
@@ -160,4 +164,71 @@ CREATE TABLE tenue_piece (
         REFERENCES vetement(id_vetement),
     CONSTRAINT fk_piece_annonce FOREIGN KEY (id_annonce)
         REFERENCES annonce(id_annonce)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =====================================================================
+-- Tables complémentaires (F4/F7, F8, F9)
+-- =====================================================================
+
+-- ---------------------------------------------------------------------
+-- compatibilite_couleur : paires de couleurs qui vont ensemble
+-- id_couleur_1 < id_couleur_2 : évite les doublons (Noir-Blanc / Blanc-Noir)
+-- ---------------------------------------------------------------------
+CREATE TABLE compatibilite_couleur (
+    id_couleur_1 INT NOT NULL,
+    id_couleur_2 INT NOT NULL,
+    PRIMARY KEY (id_couleur_1, id_couleur_2),
+    CONSTRAINT chk_compat_ordre CHECK (id_couleur_1 < id_couleur_2),
+    CONSTRAINT fk_compat_couleur1 FOREIGN KEY (id_couleur_1)
+        REFERENCES couleur(id_couleur),
+    CONSTRAINT fk_compat_couleur2 FOREIGN KEY (id_couleur_2)
+        REFERENCES couleur(id_couleur)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------------------
+-- transaction : achat d'une annonce (une annonce = au plus une transaction)
+-- ---------------------------------------------------------------------
+CREATE TABLE transaction (
+    id_transaction   INT AUTO_INCREMENT PRIMARY KEY,
+    id_annonce       INT          NOT NULL,
+    id_acheteur      INT          NOT NULL,
+    montant          DECIMAL(8,2) NOT NULL,
+    commission       DECIMAL(8,2) NOT NULL,
+    date_transaction DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_transaction_annonce UNIQUE (id_annonce),
+    CONSTRAINT chk_transaction_montant CHECK (montant > 0),
+    CONSTRAINT chk_transaction_commission CHECK (commission >= 0 AND commission <= montant),
+    CONSTRAINT fk_transaction_annonce FOREIGN KEY (id_annonce)
+        REFERENCES annonce(id_annonce),
+    CONSTRAINT fk_transaction_acheteur FOREIGN KEY (id_acheteur)
+        REFERENCES utilisateur(id_utilisateur)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------------------
+-- photo_utilisateur : photos de l'utilisateur (essayage virtuel)
+-- consentement : 1 = l'utilisateur accepte l'usage de la photo
+-- ---------------------------------------------------------------------
+CREATE TABLE photo_utilisateur (
+    id_photo       INT AUTO_INCREMENT PRIMARY KEY,
+    id_utilisateur INT          NOT NULL,
+    url            VARCHAR(255) NOT NULL,
+    angle          VARCHAR(10)  NOT NULL,
+    date_photo     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    consentement   TINYINT(1)   NOT NULL DEFAULT 0,
+    CONSTRAINT chk_photo_angle   CHECK (angle IN ('face','profil','dos')),
+    CONSTRAINT chk_photo_consent CHECK (consentement IN (0,1)),
+    CONSTRAINT fk_photo_utilisateur FOREIGN KEY (id_utilisateur)
+        REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------------------
+-- essayage : image générée pour une tenue
+-- ---------------------------------------------------------------------
+CREATE TABLE essayage (
+    id_essayage       INT AUTO_INCREMENT PRIMARY KEY,
+    id_tenue          INT          NOT NULL,
+    image_generee_url VARCHAR(255) NOT NULL,
+    date_essayage     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_essayage_tenue FOREIGN KEY (id_tenue)
+        REFERENCES tenue(id_tenue) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
