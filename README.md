@@ -207,7 +207,7 @@ Dans DbVisualizer : ouvrir chaque fichier, puis l'exécuter en tant que script, 
 | --- | --- |
 | **Chahd Loussaief** | Porteuse du projet, besoin métier, modèle de données |
 | **Abderrazaq Makran** | Besoin métier, modèle de données, dépôt et documentation, remise |
-| **Khaled** | Création des tables, contraintes, jeu de données |
+| **Khaled Djait** | Création des tables, contraintes, jeu de données |
 | **Saied Nabil** | Vues, déploiement sur le serveur, tests |
 
 <p align="right">(<a href="#readme-top">retour en haut</a>)</p>
